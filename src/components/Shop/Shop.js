@@ -3,10 +3,12 @@ import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
 import { addToDb, getStoredCart } from '../../utilities/fakedb';
 import './Shop.css';
+import { Link } from 'react-router-dom';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
     const [cart, setCart] = useState([]);
+    
     // products to be rendered on the UI
     const [displayProducts, setDisplayProducts] = useState([]);
 
@@ -36,10 +38,21 @@ const Shop = () => {
     }, [products])
 
     const handleAddToCart = (product) => {
-        const newCart = [...cart, product];
+        const existItem = cart.find(pd => pd.key === product.key);
+        let newCart = [];
+        if(existItem){
+            const rest = cart.filter(pd => pd.key !== product.key);
+            existItem.quantity = existItem.quantity +1;
+            newCart = [...rest, product]
+        }
+        else{
+            product.quantity = 1
+             newCart = [...cart, product];
+        }
         setCart(newCart);
         // save to local storage (for now)
         addToDb(product.key);
+        
     }
 
     const handleSearch = event => {
@@ -70,7 +83,11 @@ const Shop = () => {
                     }
                 </div>
                 <div className="cart-container">
-                    <Cart cart={cart}></Cart>
+                    <Cart cart={cart}>
+                        <Link to="/review">
+                            <button className="btn-regular">Review Order</button>
+                        </Link>
+                    </Cart>
                 </div>
             </div>
         </>
